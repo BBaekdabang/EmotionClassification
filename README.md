@@ -34,13 +34,13 @@
             <td>Training</td>
             <td>
                 <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/train.ipynb">Train.ipynb</a>     
-            <td> Model과 Data를 불러와 학습시키는 Code </td>
+            <td> Train </td>
         </tr>
         <tr>
             <td>Inference</td>
             <td>
                 <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test.ipynb">Inference.ipynb</a>     
-            <td> 학습 시킨 Model을 불러와서 Test Data의 label을 Inference하는 Code </td>
+            <td> Inference </td>
         </tr>        
         <tr>
             <td rowspan=2>Model Ensemble</td>       
