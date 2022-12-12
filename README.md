@@ -1,6 +1,6 @@
 # Emotion Recognition in Conversation
 # 월간 데이콘 발화자의 감정인식 AI 경진대회
-<img width="1000" img height="200" alt="Dacon" src="https://user-images.githubusercontent.com/113493692/206966548-bb71d381-a828-4a6f-8806-d63be4e37419.png">
+<img width="1000" img height="210" alt="Dacon" src="https://user-images.githubusercontent.com/113493692/206966548-bb71d381-a828-4a6f-8806-d63be4e37419.png">
 
 #### 데이터셋 다운로드 : [월간 데이콘 발화자의 감정인식 AI 경진대회](https://dacon.io/competitions/official/236027/data#)
 
@@ -142,148 +142,150 @@
    ```
 
 
-- ## Data Load: jsonlload
-    데이터가 line별로 저장된 json 파일( jsonl )이기 때문에 데이터 로드를 할 때 해당 코드로 구현함
+- ## Add Layer
+   
+   > [HappyBusDay/Korean_ABSA/code/test.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test.ipynb)
+
+     ```c
+
+    class BaseModel_AddLayer(nn.Module):
+        def init(self, dropout=0.5, num_classes=len(le.classes_)) :
+            super(BaseModel_AddLayer, self).__init__()
+            self.dropout = nn.Dropout(dropout)
+            self.linear1 = nn.Linear(768, 384)
+            self.linear2 = nn.Linear(384, num_classes)
+            self.gelu = nn.GELU()
+            
+        def forward(self, input_id, mask) :
+            _, pooled_output = self.bert(input_ids= input_id, attention_mask=mask,return_dict=False)
+            dropout_output = self.dropout(pooled_output)
+            linear_output = self.linear1(dropout_output)
+            linear_output = self.linear2(linear_output)
+            final_layer = self.gelu(linear_output)
+        
+        return final_layer
+     ```
+
+
+
+- ## SAM Optimizer
+
+   > [HappyBusDay/Korean_ABSA/code/test.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test.ipynb)
+   
+    ```c
+
+    class SAM(torch.optim.Optimizer):
+        def __init__(self, params, base_optimizer, rho=0.05, **kwargs):
+            assert rho >= 0.0, f"Invalid rho, should be non-negative: {rho}"
+
+            defaults = dict(rho=rho, **kwargs)
+            super(SAM, self).__init__(params, defaults)
+
+            self.base_optimizer = base_optimizer(self.param_groups, **kwargs)
+            self.param_groups = self.base_optimizer.param_groups
+
+        @torch.no_grad()
+        def first_step(self, zero_grad=False):
+            grad_norm = self._grad_norm()
+            for group in self.param_groups:
+                scale = group["rho"] / (grad_norm + 1e-12)
+
+                for p in group["params"]:
+                    if p.grad is None: continue
+                    e_w = p.grad * scale.to(p)
+                    p.add_(e_w)  # climb to the local maximum "w + e(w)"
+                    self.state[p]["e_w"] = e_w
+
+            if zero_grad: self.zero_grad()
+
+        ...    
+
+        자세한 코드는 code/test.ipynb 참조
+
+        return norm
+    ```
+    
+    
+    - ## Ensemble
+    - #### Hard Voting
+        > [Ensemble.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Ensemble.ipynb)
+        
+    ```c
+
+    def HardVoting(inference1, inference2, inference3) :
+
+        dic_tmp = {'ID' : [], 'Target' : []}
+
+        for i in range(len(Test)) :
+            tmp = []
+            tmp.append(inference1['Target'][i])
+            tmp.append(inference2['Target'][i])
+            tmp.append(inference3['Target'][i])
+
+            dic_tmp['ID'].append(inference1['ID'][i])
+            dic_tmp['Target'].append(Counter(tmp).most_common(n=1)[0][0])
+
+        pd.DataFrame(dic_tmp).to_csv('Ensemble.csv', encoding = 'utf-8', index = False)
+
+        return pd.DataFrame(dic_tmp)
+    ```
+        
+    - #### Soft Voting        
+    - > [Auto_Ensemble.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Auto_Ensemble.ipynb)
 
     ```c
-    import json
-    import pandas as pd
-    def jsonlload(fname, encoding="utf-8"):
-        json_list = []
-        with open(fname, encoding=encoding) as f:
-            for line in f.readlines():
-                json_list.append(json.loads(line))
-        return json_list
-    df = pd.DataFrame(jsonlload('/content/sample.jsonl'))
-    ```
+    def SoftVoting(model1, model2, model3, model4, test_loader, device):
 
+        model1.to(device)
+        model1.eval()
 
-- ## Inference: predict_from_korean_form
-   predict_from_korean_form 6가지의 방법 중 일부
-   
-   > [HappyBusDay/Korean_ABSA/code/test.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test.ipynb)
+        model2.to(device)
+        model2.eval()
 
-    - #### 방법 1: Force ( Force evaluation of a Argument )
-    
-         빈칸 " [ ] " 에 대해서 가장 높은 확률의 카테고리를 강제로 뽑아내는 방법 
+        model3.to(device)
+        model3.eval()
 
-         [Force에 대한 설명](https://rdrr.io/r/base/force.html)
+        model4.to(device)
+        model4.eval()
 
-         ```c
+        test_predict = []
 
-        def predict_from_korean_form_kelec_forcing(tokenizer_kelec, ce_model, pc_model, data):
+        for input_ids, attention_mask in tqdm(test_loader):
 
-            ...
+            input_id = input_ids.to(device)
+            mask = attention_mask.to(device)
 
-            자세한 코드는 code/test.ipynb 참조
+            y_pred1 = model1(input_id, mask)
+            y_pred2 = model2(input_id, mask)
+            y_pred3 = model3(input_id, mask)
+            y_pred4 = model4(input_id, mask)
 
-            return data
-         ```
+            test_predict += ((y_pred1 + y_pred2 + y_pred3 + y_pred4 )/4).argmax(1).detach().cpu().numpy().tolist()
 
- 
-    - #### 방법 2: DeBERTa(RoBERTa)와 ELECTRA 
+        print('Done.')
         
-         모델 별 tokenizer를 이용한 inference 진행하는 방법
-
-         ```c
-
-        def predict_from_korean_form_deberta(tokenizer_deberta, tokenizer_kelec, ce_model, pc_model, data):
-
-            ...
-
-           자세한 코드는 code/test.ipynb 참조
-
-            return data
-         ```
-
-     
-    - #### 방법 3: Threshold
-     
-         확률 기반으로 annotation을 확실한 것만 가져오는 방법
-         
-         확실한 것만 잡고 확률값이 낮은 것은 그냥 " [ ] "으로 결과값 도출 
-
-         ```c
-
-        def predict_from_korean_form_kelec_threshold(tokenizer_kelec, ce_model, pc_model, data):
-
-            ...
-
-           자세한 코드는 code/test.ipynb 참조
-
-            return data
-         ```
-
-
-
-- ## Pipeline 및 Ensemble
-
-   > [HappyBusDay/Korean_ABSA/code/test.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test.ipynb)
-   
-    - #### Pipeline: 여러 모델을 불러 결과값 도출
-        
-        해당 코드는 **12종류[category{6종류} + polarity{6종류}]의 모델**을 불러옴
-
-        " [ ] " 을 최소화 하기 위해 DeBERTa와 ELECTRA 등 여러 모델의 Weight파일을 불러 진행
-
-        ```c
-        def Win():
-
-            print("Deberta!!")
-
-            tokenizer_kelec = AutoTokenizer.from_pretrained(base_model_elec)
-            tokenizer_deberta = AutoTokenizer.from_pretrained(base_model_deberta)
-            tokenizer_roberta = AutoTokenizer.from_pretrained(base_model_roberta)
-
-            num_added_toks_kelec = tokenizer_kelec.add_special_tokens(special_tokens_dict)
-            num_added_toks_deberta = tokenizer_deberta.add_special_tokens(special_tokens_dict)
-            num_added_toks_roberta = tokenizer_roberta.add_special_tokens(special_tokens_dict)
-
-            ...    
-
-            자세한 코드는 code/test.ipynb 참조
-
-            return pd.DataFrame(jsonlload('/content/drive/MyDrive/Inference_samples.jsonl'))
-        ```
-    
-    
-    - #### Ensemble: 위의 Inference의 결과로 만들어진 jsonl파일을 불러와 Hard Voting을 진행
-        > [Ensemble.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Ensemble.ipynb)
-
-        > [Auto_Ensemble.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Auto_Ensemble.ipynb)
-
-       
-        <img width="450" alt="KakaoTalk_20221113_222631386" src="https://user-images.githubusercontent.com/73925429/201582648-93ae75da-affe-4198-83a5-fb5280c54bdd.png">
-
-        ( Hard Voting )
-
-     
+        return test_predict
+    ``` 
 
 
 ---
 
 # 마. Reference
 
-[1] [EDA: Easy Data Augmentation](https://arxiv.org/pdf/1901.11196.pdf): Wei, Jason, and Kai Zou. "Eda: Easy data augmentation techniques for boosting performance on text classification tasks." arXiv preprint arXiv:1901.11196 (2019).
+[1] [SAM: Sharpeness-Aware Minimization](https://arxiv.org/pdf/2010.01412.pdf) : Foret, Pierre, et al. "Sharpness-aware minimization for efficiently improving generalization." arXiv preprint arXiv:2010.01412 (2020).
 
-[2] [Back-Trainslation](https://proceedings.neurips.cc/paper/2020/file/44feb0096faa8326192570788b38c1d1-Paper.pdf): Xie, Qizhe, et al. "Unsupervised data augmentation for consistency training." Advances in Neural Information Processing Systems 33 (2020): 6256-6268.
+[2] [EmoBERTa](https://arxiv.org/pdf/2108.12009.pdf) : Kim, Taewoon, and Piek Vossen. "Emoberta: Speaker-aware emotion recognition in conversation with roberta." arXiv preprint arXiv:2108.12009 (2021).
 
-[3] [ELECTRA](https://arxiv.org/pdf/2003.10555.pdf): Clark, Kevin, et al. "Electra: Pre-training text encoders as discriminators rather than generators." arXiv preprint arXiv:2003.10555 (2020).
+[3] [DistillBERT](https://arxiv.org/pdf/1910.01108.pdf) : Sanh, Victor, et al. "DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter." arXiv preprint arXiv:1910.01108 (2019).
 
-[4] [RoBERTa](https://arxiv.org/pdf/1907.11692.pdf): Liu, Yinhan, et al. "Roberta: A robustly optimized bert pretraining approach." arXiv preprint arXiv:1907.11692 (2019).
-
-[5] [DeBERTa](https://arxiv.org/pdf/2006.03654.pdf): He, Pengcheng, et al. "Deberta: Decoding-enhanced bert with disentangled attention." arXiv preprint arXiv:2006.03654 (2020).
-
-[6] [teddysum/korean_ABSA_baseline](https://github.com/teddysum/korean_ABSA_baseline): GitHub
-
-[7] [catSirup/KorEDA](https://github.com/catSirup/KorEDA): GitHub
+[4] [BERT](https://arxiv.org/pdf/1810.04805.pdf) : Devlin, Jacob, et al. "Bert: Pre-training of deep bidirectional transformers for language understanding." arXiv preprint arXiv:1810.04805 (2018).
 
 ---
 
 # 바. Members
+Hyoje Jung | flash1253@naver.com<br>
 Yongjae Kim | dydwo322@naver.com<br>
 Hyein Oh | gpdls741@naver.com<br>
 Seungyong Guk | kuksy77@naver.com<br>
 Jaehyeog Lee | tysl4545@naver.com<br>
-Hyoje Jung | flash1253@naver.com<br>
 Hyojin Kang | khj94111@gmail.com
