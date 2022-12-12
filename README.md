@@ -1,19 +1,19 @@
-# EmotionClassification
+# Emotion Recognition in Conversation
 # 월간 데이콘 발화자의 감정인식 AI 경진대회
-<img width="500" alt="2022 국립국어원" src="https://user-images.githubusercontent.com/73925429/200458285-bb6659d2-eebc-48e1-a768-61906aea5d89.png">
+<img width="1000" img height="200" alt="Dacon" src="https://user-images.githubusercontent.com/113493692/206966548-bb71d381-a828-4a6f-8806-d63be4e37419.png">
 
-#### 데이콘 데이터셋 다운로드 : [월간 데이콘 발화자의 감정인식 AI 경진대회](https://dacon.io/competitions/official/236027/data#)
+#### 데이터셋 다운로드 : [월간 데이콘 발화자의 감정인식 AI 경진대회](https://dacon.io/competitions/official/236027/data#)
 
-대회 기간 : 2022.11.01. ~ 2022.12.12.
+대회 참여 기간 : 2022.11.21. ~ 2022.12.12.
 
 ### 최종 순위 : Public 3등
 
-<img width="857" alt="image" src="https://user-images.githubusercontent.com/73925429/203103021-99bb6902-4658-4c47-ad83-f76595f22ad4.png">
+<img width="1000" alt="image" src="https://user-images.githubusercontent.com/113493692/206967116-f16f8827-ad37-4a32-ad29-24cdbee13b7d.png">
 
 
 ---
 
-# 코드 정리
+# Code
 
 <table>
     <thead>
@@ -25,67 +25,36 @@
     </thead>
     <tbody>
         <tr>
-            <td rowspan=3>Data 만들기</td>
+            <td rowspan=1>SAM Optimizer</td>
             <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Data_Augmentation.ipynb">Data_Augmentation.ipynb</a>
+                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Data_Augmentation.ipynb">SAM_Optimizer.ipynb</a>
             </td>
-            <td> Random_Insertion, Random_Swap, Random_Deletion Code</td>
+            <td> SAM Optimizer </td>
         </tr>
-        <tr>
+            <td>Training</td>
             <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Back_Translation.ipynb">Back_Translation.ipynb</a>                
-            <td> Back_Translation Code</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/MakeData_with_API.ipynb">MakeData_with_API.ipynb</a>     
-            <td> Naver Open API를 이용하여 데이터의 라벨을 달아주는 Code </td>
-        <tr>
-            <td>Model Training</td>
-            <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/train.ipynb">train.ipynb</a>     
+                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/train.ipynb">Train.ipynb</a>     
             <td> Model과 Data를 불러와 학습시키는 Code </td>
         </tr>
         <tr>
-            <td>Prediction</td>
+            <td>Inference</td>
             <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test.ipynb">test.ipynb</a>     
-            <td> 학습 시켰던 Model의 Weights를 불러와서 새로운 데이터의 결과값을 예측하는 Code </td>
+                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test.ipynb">Inference.ipynb</a>     
+            <td> 학습 시킨 Model을 불러와서 Test Data의 label을 Inference하는 Code </td>
         </tr>        
         <tr>
             <td rowspan=2>Model Ensemble</td>       
             <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Manual_Ensemble.ipynb">Manual_Ensemble.ipynb</a>
-            <td> Prediction의 결과(jsonl파일)를 불러와서 Hard Voting하는 Code</td>
+                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Manual_Ensemble.ipynb">HardVoting.ipynb</a>
+            <td> Hard Voting</td>
         </tr>
         <tr>
             <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Auto_Ensemble.ipynb">Auto_Ensemble.ipynb</a>
-            <td>다양한 조합의 결과를 도출하는 Ensemble code</td>
-        </tr>
-        <tr>
-            <td rowspan=4>구현코드</td>
-            <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/test_and_ensemble_realizing.ipynb">test_and_ensemble_realizing.ipynb</a>
-            <td>최종 점수 재현 및 검증을 위한 코드</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Organized_Inference.ipynb">Organized_Inference.ipynb</a>
-            <td>최종 재현 코드1</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Organized_Realization.ipynb">Organized_Realization.ipynb</a>
-            <td>최종 재현 코드2</td>
-        </tr>
-        <tr>
-            <td>
-                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Organized_Inference_and_Ensemble.ipynb">Organized_Inference_and_Ensemble.ipynb</a>
-            <td>최종 재현 코드3</td>
+                <a href="https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Auto_Ensemble.ipynb">SoftVoting.ipynb</a>
+            <td>Soft Voting</td>
         </tr>
         
-    </tbody>
+   </tbody>
 </table>
 
 ---
@@ -108,84 +77,60 @@
 ---
 
 # 나. 데이터 예시 
- 출처 : 국립국어원, 2022 인공지능 언어 능력 평가 말뭉치: ABSA 
+ 출처 : Dacon, 월간 데이콘 발화자의 감정인식 AI 경진대회 
 
-    {"id": "nikluge-sa-2022-train-00001", "sentence_form": "둘쨋날은 미친듯이 밟아봤더니 기어가 헛돌면서 틱틱 소리가 나서 경악.", "annotation": [["본품#품질", ["기어", 16, 18], "negative"]]}
-    {"id": "nikluge-sa-2022-train-00002", "sentence_form": "이거 뭐 삐꾸를 준 거 아냐 불안하고, 거금 투자한 게 왜 이래.. 싶어서 정이 확 떨어졌는데 산 곳 가져가서 확인하니 기어 텐션 문제라고 고장 아니래.", "annotation": [["본품#품질", ["기어 텐션", 67, 72], "negative"]]}
-    {"id": "nikluge-sa-2022-train-00003", "sentence_form": "간사하게도 그 이후에는 라이딩이 아주 즐거워져서 만족스럽게 탔다.", "annotation": [["제품 전체#일반", [null, 0, 0], "positive"]]}
+    {"ID": "TRAIN-0002", "Utterance": "That I did. That I did.", "Speaker": "Chandler", "Dialogue_ID": "0", "Target": "neutral"}
+    {"ID": "TRAIN-0007", "Utterance": "But there’ll be perhaps 30 people under you so you can dump a certain amount on them.", "Speaker": "The Interviewer", "Dialogue_ID": "0", "Target": "neutral"}
+    {"ID": "TRAIN-0017", "Utterance": "No, I-I-I-I don't, I actually don't know", "Speaker": "Rachel", "Dialogue_ID": "1", "Target": "fear"}
 
 ---
 
-# 다. 데이터 증강 방식
-
-#### 1. Augmentation - RI(Random Insertion): 감탄사와 의성어를 문장 내에 추가하는 방식
-
-       
-    ex) 나는 자전거 타는 것을 좋아한다. -> 와! 나는 자전거 타는 것을 좋아한다.
-   
-        
-#### 2. Back-Translation
-
-
-    원본) 나는 자전거 타는 것을 좋아한다. 
-
-    한국어 -> 프랑스어) J'aime faire du vélo. 
-
-    프랑스어 -> 한국어) 저는 자전거 타는 것을 좋아해요.
-
-   위의 예와 같이 특정 문장을 다른 언어로 번역한 후 다시 한국어로 번역하여 의미는 같지만 형태가 다른 문장을 생성하는 방식
-    
-#### 3. 외부 API 활용
- 
-   크롤링한 데이터(출처: 네이버쇼핑, 올리브영)에 대해 NAVER CLOVA Sentiment API를 이용하여 Label을 'neutral'과 'negative'를 부여하는 방식
-    
----
 
 # 라. 주요 소스 코드
 
-- ## Model Load: Hugging Face에서 Pre-Trained Model 불러오기 ( pip install transformers )
+- ## Model Load From Hugging Face
    
    
     <table>
     <thead>
         <tr>
-            <th>목록</th>
             <th>Model</th>
-            <th>Pre-Trained Data</th>
+            <th>Pre-Trained Dataset</th>
             <th>링크(HuggingFace)</td>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td rowspan=3>속성범주 (Category)</td>
-            <td> ELECTRA</td>
-            <td> 한국어로 된 블로그, 댓글, 리뷰 Data </td>
+            <td> DistilBERT</td>
+            <td>                 
+                <a href="https://huggingface.co/datasets/viewer/?dataset=emotion">Twitter-Sentiment-Analysis</a></td>
             <td>
-                <a href="https://huggingface.co/kykim/electra-kor-base">kykim/electra-kor-base</a>
+                <a href="https://huggingface.co/bhadresh-savani/distilbert-base-uncased-emotion">bhadresh-savani/distilbert-base-uncased-emotion</a>
         </tr>
         <tr>
-            <td> RoBERTa</td>
-            <td> Wikipedia, BookCorpus, CommonCrawl data 등 100 languagues로 된 Data </td>
+            <td> BERT</td>            
+            <td>                 
+                <a href="https://huggingface.co/datasets/viewer/?dataset=emotion">Twitter-Sentiment-Analysis</a></td>
             <td>
-                <a href="https://huggingface.co/xlm-roberta-base">xlm-roberta-base</a>
+                <a href="https://huggingface.co/bhadresh-savani/bert-base-uncased-emotion">bhadresh-savani/bert-base-uncased-emotion</a>
         </tr>
         <tr>
-            <td>DeBERTa</td>
-            <td>한국어로 된 모두의 말뭉치, 국민청원 등의 Data </td>
+            <td> EmoBERTa-base</td>
+            <td>                
+                <a href="https://github.com/tae898/multimodal-datasets/tree/a36101638a8121b422ce4a2a17746b25f23335b8">multimodal-datasets</a></td>
             <td>
-                <a href="https://huggingface.co/lighthouse/mdeberta-v3-base-kor-further">mdeberta-v3-base-kor-further</a>
+                <a href="https://huggingface.co/tae898/emoberta-base">tae898/emoberta-base</a>
         </tr>
         <tr>
-            <td>감성범주 (Polarity)</td>
-            <td> ELECTRA</td>
-            <td> 한국어로 된 블로그, 댓글, 리뷰 Data </td>
+            <td> EmoBERTa-large</td>
+            <td>                
+                <a href="https://github.com/tae898/multimodal-datasets/tree/a36101638a8121b422ce4a2a17746b25f23335b8">multimodal-datasets</a></td>
             <td>
-                <a href="https://huggingface.co/kykim/electra-kor-base">kykim/electra-kor-base</a>
+                <a href="https://huggingface.co/tae898/emoberta-large">tae898/emoberta-large</a>
         </tr>
     </tbody>
     </table>
-    
-   > 속성 범주(Category)와 감성 범주(Polarity의 class 불균형을 해소하기 위해서 각 범주를 분리하여 전처리 및 학습을 진행하였다.     
+      
     
    ```c
     # HuggingFace에서 불러오기
