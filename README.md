@@ -206,7 +206,7 @@
     ```
     
     
-    - ## Ensemble
+- ## Ensemble
     - #### Hard Voting
         > [Ensemble.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Ensemble.ipynb)
         
@@ -231,7 +231,7 @@
     ```
         
     - #### Soft Voting        
-    - > [Auto_Ensemble.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Auto_Ensemble.ipynb)
+        > [Auto_Ensemble.ipynb 참조](https://github.com/HappyBusDay/Korean_ABSA/blob/main/code/Auto_Ensemble.ipynb)
 
     ```c
     def SoftVoting(model1, model2, model3, model4, test_loader, device):
