@@ -200,7 +200,7 @@
 
         ...    
 
-        자세한 코드는 code/test.ipynb 참조
+        자세한 코드는 SAM_Optimizer.ipynb 참조
 
         return norm
     ```
